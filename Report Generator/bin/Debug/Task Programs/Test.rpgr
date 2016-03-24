@@ -1,0 +1,4 @@
+COL={"Order #","Part #","Customer","Due Date"}
+C(0)("Provider=Microsoft.JET.OLEDB.4.0;Data Source=\\server\SHARE\Systems Database\Access Database\IrongateApplications.mdb","SELECT dbo_OrderDet.OrderNo, dbo_OrderDet.PartNo, dbo_OrderDet.Status, dbo_Orders.CustCode, dbo_OrderDet.DueDate FROM dbo_Orders INNER JOIN dbo_OrderDet ON dbo_Orders.OrderNo = dbo_OrderDet.OrderNo WHERE (((dbo_OrderDet.Status)='Open'));"){
+	OUT({C(0)(0),C(0)(1),C(0)(3),C(0)(4)})//Output only if stock is being made or parts are being made
+}C(0)
