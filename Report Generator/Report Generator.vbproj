@@ -25,7 +25,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ProductName>Report Generator</ProductName>
     <PublisherName>Irongate Machine Inc</PublisherName>
-    <ApplicationRevision>38</ApplicationRevision>
+    <ApplicationRevision>39</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -85,8 +85,9 @@
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HTML">
-      <HintPath>..\..\HTML Writer\HTML Writer\bin\Release\HTML.dll</HintPath>
+    <Reference Include="HTML, Version=4.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\HTML Writer\HTML-Writer\HTML Writer\bin\Release\HTML.dll</HintPath>
     </Reference>
     <Reference Include="NCalc">
       <HintPath>\\SERVER\UserShares\TraisMcAllister\Downloads\NCalc - Binaries\NCalc.dll</HintPath>
