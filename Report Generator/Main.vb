@@ -69,7 +69,7 @@
             End Try
             Me.Close()
           End If
-          MsgBox("Arguments: " & argument)
+          'MsgBox("Arguments: " & argument)
         Next
       End If
     End If

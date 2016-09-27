@@ -4,13 +4,15 @@ Imports System.Text.RegularExpressions
 Public Class Search_Report
   Private _grd As DataGridView
   Private _tbl As DataTable
+  Private _asort As String
+
     Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OK_Button.Click
         Me.DialogResult = System.Windows.Forms.DialogResult.OK
     Me.Hide()
     End Sub
-  Public Sub New(ByVal Grid As DataGridView, ByVal SourceTable As DataTable)
+  Public Sub New(ByVal Grid As DataGridView, ByVal SourceTable As DataTable, Optional ByVal AutoSortColumnName As String = "")
     InitializeComponent()
-
+    _asort = AutoSortColumnName
     _grd = Grid '' Setup reference to data grid view
     _tbl = SourceTable
     pnlContainer.Controls.Clear() '' Remove any existing controls
@@ -72,6 +74,13 @@ Public Class Search_Report
       _grd.DataSource = Nothing
       _grd.Rows.Clear()
       _grd.DataSource = If(dataRows.Count > 0, dataRows.CopyToDataTable(), _tbl)
+
+    End If
+    If Not String.IsNullOrEmpty(_asort) Then
+      If Not IsNothing(_grd.Columns.Item(_asort)) Then
+        Debug.WriteLine("Try to sort by '" & _asort & "'")
+        _grd.Sort(_grd.Columns(_asort), System.ComponentModel.ListSortDirection.Ascending)
+      End If
     End If
   End Sub
 

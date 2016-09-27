@@ -6,7 +6,7 @@
     txtFilePath.Text = _prgrm.FilePath
   End Sub
   Public Sub SetProgress(ByVal Line As String, ByVal CurrentIndex As Integer, ByVal MaxIndex As Integer)
-    lblProgress.Text = "Decompiling(" & Line & ")"
+    lblProgress.Text = "Parsing: " & Line
     rtbProgress.AppendText(Line & vbLf)
     rtbProgress.ScrollToCaret()
     prgProgress.Minimum = 0

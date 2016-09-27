@@ -23,13 +23,13 @@ Public Class Report
           Debug.WriteLine("Found table '" & prgrm.Data.TableName & "' with '" & prgrm.Data.Rows.Count.ToString & "' records")
           statStatus.Text = "Data found, added to grid view."
           statCount.Text = dgvReport.Rows.Count.ToString & " records"
-          search = New Search_Report(dgvReport, prgrm.Data)
+          search = New Search_Report(dgvReport, prgrm.Data, prgrm.AutoSortColumn)
           If AutoPrint Then
             Dim prev As New ReportPreview(Output_HTML(), True)
             prev.Show()
           End If
           If Not String.IsNullOrEmpty(AutoSave) Then
-            If AutoSave.ToLower.EndsWith("html") Or AutoSave.ToLower.EndsWith("htm") Then
+            If AutoSave.IndexOf("html", System.StringComparison.OrdinalIgnoreCase) >= 0 Or AutoSave.IndexOf("htm", System.StringComparison.OrdinalIgnoreCase) >= 0 Then
               IO.File.WriteAllText(AutoSave, Output_HTML)
             ElseIf AutoSave.ToLower.EndsWith("csv") Then
               IO.File.WriteAllText(AutoSave, Output_CSV)
@@ -155,14 +155,19 @@ Public Class Report
       Next
       report += tbl
     End If
-    Return report.HTMLMarkup
+    Dim out As String = report.HTMLMarkup
+    report.Dispose()
+    Return out
   End Function
 
   Private Sub mnuSearch_Click(sender As Object, e As EventArgs) Handles mnuSearch.Click
     If Not IsNothing(search) Then
+      If search.IsDisposed Then
+        search = New Search_Report(dgvReport, prgrm.Data, prgrm.AutoSortColumn)
+      End If
       search.Show()
     Else
-      search = New Search_Report(dgvReport, prgrm.Data)
+      search = New Search_Report(dgvReport, prgrm.Data, prgrm.AutoSortColumn)
     End If
   End Sub
 
