@@ -52,6 +52,7 @@ Partial Class ReportPreview
     Me.webPreview.Location = New System.Drawing.Point(0, 28)
     Me.webPreview.MinimumSize = New System.Drawing.Size(20, 20)
     Me.webPreview.Name = "webPreview"
+    Me.webPreview.ScriptErrorsSuppressed = True
     Me.webPreview.Size = New System.Drawing.Size(482, 427)
     Me.webPreview.TabIndex = 1
     '

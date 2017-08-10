@@ -50,40 +50,13 @@ Public Class Program
   End Sub
 
   Public Function Run() As Boolean
-    If _lines.Count <= 0 Then Return False 'If _lines.Length <= 0 Then Return False
+    If _lines.Count <= 0 Then Return False
 
     '' Show decompiling splash
     splsh = New Decompiling_Splash(Me)
     splsh.Show() '' Show user splash
     RunInner(_lines) '' Run inner lines of commands
     splsh.Close() '' Close user splash
-
-    'Debug.WriteLine(New String("*", 20))
-    'Debug.WriteLine("Numeric")
-    'For i = 0 To _nvar.Length - 1 Step 1
-    '  If _nvar(i) IsNot Nothing Then
-    '    Debug.WriteLine(vbTab & "V" & i.ToString & " = " & _nvar(i).Value)
-    '  End If
-    'Next
-    'Debug.WriteLine("Alphanumeric")
-    'For i = 0 To _svar.Length - 1 Step 1
-    '  If _svar(i) IsNot Nothing Then
-    '    Debug.WriteLine(vbTab & "S" & i.ToString & " = " & _svar(i).Value)
-    '  End If
-    'Next
-    'Debug.WriteLine("Connection")
-    'For i = 0 To _cvar.Length - 1 Step 1
-    '  If _cvar(i) IsNot Nothing Then
-    '    Debug.WriteLine(vbTab & "C" & i.ToString & " = " & _cvar(i).CommandString)
-    '  End If
-    'Next
-    'Debug.WriteLine("XML")
-    'For i = 0 To _xvar.Length - 1 Step 1
-    '  If _xvar(i) IsNot Nothing Then
-    '    Debug.WriteLine(vbTab & "X" & i.ToString & " = " & _xvar(i).CommandString)
-    '  End If
-    'Next
-    'Debug.WriteLine(New String("*", 20))
 
     Return True
   End Function
@@ -107,11 +80,20 @@ Public Class Program
       If Parser.Check.IfStatement(line, strTemp, strIFCond) Then
         'Dim mat As Match = New Regex("IF\((.*)\)\{(.*)}").Match(line)
         strTemp = ReplaceValues(strTemp)
-        If New Expression(strTemp).Evaluate = True Then '' Use Ncalc to determine if true
-          line = strIFCond
-        Else
-          Debug.WriteLine(New String(vbTab, 3) & "Evaluation failed '" & strTemp & "'...")
-          line = "//Not true expression"
+        If strTemp.IndexOf(Chr(34)) < 0 Then
+          If New Expression(strTemp).Evaluate = True Then '' Use Ncalc to determine if true
+            line = strIFCond
+          Else
+            Debug.WriteLine(New String(vbTab, 3) & "Evaluation failed '" & strTemp & "'...")
+            line = "//Not true expression"
+          End If
+        Else '' Contains a string comparison, we have to manually parse this
+          If EvaluateStringComparison(strTemp) Then
+            line = strIFCond
+          Else
+            Debug.WriteLine(New String(vbTab, 3) & "String Evaluation failed '" & strTemp & "'...")
+            line = "//Not true string expression"
+          End If
         End If
       End If
 
@@ -243,6 +225,13 @@ Public Class Program
       End If
     Next
     Return True
+  End Function
+
+  Public Shared Function EvaluateStringComparison(ByVal cond As String) As Boolean
+    Dim variable, condition As String
+    variable = cond.Remove(cond.IndexOf("==")).Trim()
+    condition = cond.Remove(0, cond.IndexOf("==") + 2).Trim().Replace(Chr(34), "")
+    Return variable.Equals(condition)
   End Function
 
   Public Shared Function ReplaceValues(ByVal Input As String) As String
@@ -396,7 +385,7 @@ Public Class Program
     Public Sub New(Optional ByVal RawCode As String = "COL={}")
       If RawCode.Contains(Chr(34)) Then
         If RawCode.Contains(",") Then
-          Dim reg As New Regex("(" & Chr(34) & "[A-Za-z0-9# \$]*" & Chr(34) & ")([#DS]?)[,|}]+")
+          Dim reg As New Regex("(" & Chr(34) & "[A-Za-z0-9#-_\(\) \$]*" & Chr(34) & ")([#DS]?)[,|}]+")
           For Each mat As Match In reg.Matches(RawCode)
             If mat.Success Then
               For Each grp As Group In mat.Groups
@@ -506,7 +495,7 @@ Public Class Program
       Dim sl As SortedList(Of String, String) = GetVariables(Input)
       _exp.Parameters.Clear()
       For i = 0 To sl.Count - 1 Step 1
-        _exp.Parameters(sl.Keys(i).Replace("(", "").Replace(")", "")) = sl.Values(i)
+        _exp.Parameters(sl.Keys(i).Replace("(", "").Replace(")", "")) = CDbl(sl.Values(i))
       Next
       'Input = ReplaceValues(Input)
       If Not _exp.HasErrors Then
@@ -849,9 +838,9 @@ Public Class Program
 
     Public Sub New(ByVal RawCode As String)
       _idx = GetIndex(RawCode) '' Get index from code
-      _strcnn = Parser.Parse.XmlDocumentString(RawCode) 'mat.Groups(1).Value.ToString '' Gets connection string
-      _xmlcmd = Parser.Parse.XmlXPathString(RawCode) 'mat.Groups(2).Value.ToString '' Gets command
-      _xmlcmd = ReplaceValues(_xmlcmd) '' Replace any values as necessary
+      _strcnn = ReplaceValues(Parser.Parse.XmlDocumentString(RawCode)) 'mat.Groups(1).Value.ToString '' Gets connection string
+      _xmlcmd = ReplaceValues(Parser.Parse.XmlXPathString(RawCode)) 'mat.Groups(2).Value.ToString '' Gets command
+      ''_xmlcmd = ReplaceValues(_xmlcmd) '' Replace any values as necessary
       Dim callback As String = FillDataSet()
       If Not String.IsNullOrEmpty(callback) Then Throw New ArgumentException(callback)
       _xvar(_idx) = Me
